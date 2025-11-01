@@ -2,8 +2,9 @@ import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div>
-      <Button>haloooooooo guysssssssss</Button>
+    <div className="mt-40">
+      <Button variant="destructive"> mwahahahahahah
+      </Button>
         </div>
        
   );

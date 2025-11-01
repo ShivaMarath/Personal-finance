@@ -25,10 +25,9 @@ export default function RootLayout({
       <body
         className={`${inter.className}`}
       >
-        <Header>
-          
-        </Header>
-        <main className="min-h-screen">
+        <Header />
+        <main className="min-h-screen pt-20 pb-5">
+        
         {children}
         </main>
         <footer className="bg-blue-50 py-12">
