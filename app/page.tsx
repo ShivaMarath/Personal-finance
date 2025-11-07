@@ -22,10 +22,10 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {statsData.map((item, index) => (
-  <div key={index} className="text-center">
-    <div className="text-4xl font-bold text-blue-600 mb-2">{item.value}</div>
-    <div className="text-sm text-gray-600">{item.label}</div>
-  </div>
+            <div key={index} className="text-center">
+            <div className="text-4xl font-bold text-blue-600 mb-2">{item.value}</div>
+            <div className="text-sm text-gray-600">{item.label}</div>
+          </div>
 ))}
           </div>
         </div>
