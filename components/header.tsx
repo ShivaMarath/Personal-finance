@@ -17,7 +17,7 @@ const header = () => {
         <Link href='/' className='text-gray-600 hover:text-blue-600 flex items-center gap-2'>
         <Image 
         src={"/logo-newer.png"} alt="logo" height={60} width={200} 
-        className='h-12 w-auto object-contain'/>
+        className='h-12 w-auto object-contain border-0'/>
         </Link>
       <div className='flex items-center space-x-4'>
         <SignedIn>
