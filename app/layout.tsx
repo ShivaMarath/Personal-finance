@@ -26,7 +26,7 @@ export default function RootLayout({
         className={`${inter.className}`}
       >
         <Header />
-        <main className="min-h-screen pt-20 pb-5">
+        <main className="min-h-screen pt-10 pb-5">
         
         {children}
         </main>
