@@ -17,17 +17,27 @@ type CreateAccountData = {
 }
 
 
-type SerializedTransactionInput = {
-  balance?: DecimalLike | number
-  [key: string]: any
-}
-const serializeTransaction = (obj: SerializedTransactionInput) => {
-  const serialized = { ...obj }
-  if (obj.balance && typeof obj.balance === "object" && "toNumber" in obj.balance) {
-    serialized.balance = obj.balance.toNumber()
+function serializeTransaction<
+  T extends { balance: any; amount?: any }
+>(obj: T): Omit<T, "balance" | "amount"> & {
+  balance: number
+  amount?: number
+} {
+  return {
+    ...obj,
+    balance:
+      typeof obj.balance === "object" && "toNumber" in obj.balance
+        ? obj.balance.toNumber()
+        : obj.balance,
+    amount:
+      obj.amount && typeof obj.amount === "object" && "toNumber" in obj.amount
+        ? obj.amount.toNumber()
+        : obj.amount
   }
-  return serialized
 }
+
+
+
 
 
 export async function createAccount(data : CreateAccountData){
@@ -83,8 +93,46 @@ export async function createAccount(data : CreateAccountData){
             const serializedAccount = serializeTransaction(account)
             revalidatePath("/dashboard") 
             return {success:true, data: serializedAccount}
+
+            
         } catch (error) {
             //@ts-ignore
             throw new Error(error.message)
         }
 }
+
+export async function getUserAccounts(){
+                const {userId} = await auth()
+            if(!userId){
+                throw new Error ("Unauthorized")
+            }
+
+            const user = await db.user.findUnique({
+                where:{
+                    clerkUserId:userId
+                }
+            })
+            if(!user){
+                throw new Error("User not found")
+            }
+            
+            const accounts = await db.account.findMany({
+                where:{
+                  userId: user.id},
+                orderBy:{
+                    createdAt: 'desc'
+                },
+                include:{
+                    
+                    _count:{
+                        select:{
+                            transactions:true
+                            
+                        }
+                    }
+                }
+        })
+        const serializedAccount = accounts.map(acc => serializeTransaction(acc))
+return serializedAccount
+
+            }

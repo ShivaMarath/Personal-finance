@@ -5,6 +5,7 @@ import Header from "@/components/header";
 import {
   ClerkProvider
 } from '@clerk/nextjs'
+import { Toaster } from "sonner";
 
 
 const inter = Inter({subsets:["latin"]})
@@ -30,6 +31,7 @@ export default function RootLayout({
         
         {children}
         </main>
+        <Toaster richColors />
         <footer className="bg-blue-50 py-12">
           <div className="container mx-auto px-4 text-center">
           Made by ShivaMarath
