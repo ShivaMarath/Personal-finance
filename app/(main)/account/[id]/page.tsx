@@ -1,11 +1,17 @@
 import { Suspense } from "react";
-import { getAccountWithTransactions } from "../../../../actions/accounts";
+import { getAccountWithTransactions } from "@/actions/accounts";
 import { BarLoader } from "react-spinners";
 import { TransactionTable } from "../_components/transaction-table";
 import { notFound } from "next/navigation";
 import { AccountChart } from "../_components/account-chart";
 
-export default async function AccountPage({ params }) {
+interface PageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default async function AccountPage({ params }: PageProps) {
   const accountData = await getAccountWithTransactions(params.id);
 
   if (!accountData) {
@@ -13,6 +19,24 @@ export default async function AccountPage({ params }) {
   }
 
   const { transactions, ...account } = accountData;
+
+  // Transform all transactions to match the expected types
+  const formattedTransactions = transactions.map(transaction => ({
+    ...transaction,
+    description: transaction.description || "",
+    amount: Number(transaction.amount),
+    date: transaction.date,
+    recurringInterval: transaction.recurringInterval || undefined,
+    nextRecurringDate: transaction.nextRecurringDate || undefined,
+    receiptUrl: transaction.receiptUrl || undefined
+  }));
+
+  // Safely handle balance
+  const balance = account.balance !== undefined 
+    ? typeof account.balance === 'number' 
+      ? account.balance.toString() 
+      : String(account.balance)
+    : "0";
 
   return (
     <div className="space-y-8 px-5">
@@ -29,7 +53,7 @@ export default async function AccountPage({ params }) {
 
         <div className="text-right pb-2">
           <div className="text-xl sm:text-2xl font-bold">
-            ${parseFloat(account.balance).toFixed(2)}
+            ${parseFloat(balance).toFixed(2)}
           </div>
           <p className="text-sm text-muted-foreground">
             {account._count.transactions} Transactions
@@ -41,14 +65,14 @@ export default async function AccountPage({ params }) {
       <Suspense
         fallback={<BarLoader className="mt-4" width={"100%"} color="#9333ea" />}
       >
-        <AccountChart transactions={transactions} />
+        <AccountChart transactions={formattedTransactions} />
       </Suspense>
 
       {/* Transactions Table */}
       <Suspense
         fallback={<BarLoader className="mt-4" width={"100%"} color="#9333ea" />}
       >
-        <TransactionTable transactions={transactions} />
+        <TransactionTable transactions={formattedTransactions} />
       </Suspense>
     </div>
   );

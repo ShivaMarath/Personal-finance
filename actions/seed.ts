@@ -4,8 +4,8 @@ import { db } from "@/lib/prisma";
 import { subDays } from "date-fns";
 import { randomUUID } from "crypto";
 
-const ACCOUNT_ID = "account-id" as const;
-const USER_ID = "user-id" as const;
+const ACCOUNT_ID = "d634397c-262b-473f-abb2-8539d4d5e5cf" as const;
+const USER_ID = "ef87a934-211b-4316-84b9-514707c00bad" as const;
 
 type CategoryType = "INCOME" | "EXPENSE";
 
