@@ -30,7 +30,7 @@ import { CreateAccountDrawer } from "@/components/create-account-drawer";
 import { cn } from "@/lib/utils";
 import { createTransaction, updateTransaction } from "@/actions/transaction";
 import { transactionSchema } from "@/app/lib/schema";
-import { ReceiptScanner } from "../_components/recipt-scanner";
+import { ReceiptScanner } from "./recipt-scanner";
 import { Account, Transaction, TransactionType, RecurringInterval } from "@/lib/generated/prisma";
 
 // Extend the schema to ensure date is always a Date object for the form
@@ -44,17 +44,11 @@ type TransactionFormData = z.infer<typeof formTransactionSchema>;
 type Category = {
   id: string;
   name: string;
-  type: string; // Changed from TransactionType to string to match defaultCategories
-  color: string;
-  icon: string;
-  subcategories?: string[];
+  type: TransactionType;
 };
 
-type SerializedAccount = Omit<Account, 'balance'> & {
-  balance: number;
-  _count?: {
-    transactions: number;
-  };
+type AccountWithBalance = Account & {
+  balance: number | string;
 };
 
 type SerializedTransaction = Omit<Transaction, 'amount'> & {
@@ -62,7 +56,7 @@ type SerializedTransaction = Omit<Transaction, 'amount'> & {
 };
 
 type AddTransactionFormProps = {
-  accounts: SerializedAccount[];
+  accounts: AccountWithBalance[];
   categories: Category[];
   editMode?: boolean;
   initialData?: SerializedTransaction | null;

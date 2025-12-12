@@ -42,12 +42,14 @@ export function BudgetProgress({ initialBudget, currentExpenses }: BudgetProgres
     initialBudget?.amount?.toString() || ""
   );
 
+  // If useFetch expects <ResponseType, ParamsType[]>
+  // updateBudget takes a single number parameter, so use [number]
   const {
     loading: isLoading,
     fn: updateBudgetFn,
     data: updatedBudget,
     error,
-  } = useFetch<UpdateBudgetResponse>(updateBudget);
+  } = useFetch<UpdateBudgetResponse, [number]>(updateBudget);
 
   const percentUsed = initialBudget && initialBudget.amount > 0
     ? (currentExpenses / initialBudget.amount) * 100
