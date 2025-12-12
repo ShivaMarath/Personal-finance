@@ -16,25 +16,33 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { updateBudget } from "@/actions/budget";
+import { Budget } from "@/lib/generated/prisma";
 
-interface Budget {
+type SerializedBudget = {
   id: string;
   userId: string;
   amount: number;
+  lastAlertSent?: Date | null;
   createdAt: Date;
   updatedAt: Date;
-}
+};
 
-interface BudgetProgressProps {
-  initialBudget: Budget | null;
-  currentExpenses: number;
-}
-
-interface UpdateBudgetResponse {
+type UpdateBudgetResponse = {
   success: boolean;
-  data?: Budget;
-  error?: string;
-}
+  data?: {
+    id: string;
+    userId: string;
+    amount: number;
+    createdAt: Date;
+    updatedAt: Date;
+    lastAlertSent?: Date | null;
+  };
+};
+
+type BudgetProgressProps = {
+  initialBudget: SerializedBudget | null;
+  currentExpenses: number;
+};
 
 export function BudgetProgress({ initialBudget, currentExpenses }: BudgetProgressProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -42,20 +50,18 @@ export function BudgetProgress({ initialBudget, currentExpenses }: BudgetProgres
     initialBudget?.amount?.toString() || ""
   );
 
-  // If useFetch expects <ResponseType, ParamsType[]>
-  // updateBudget takes a single number parameter, so use [number]
   const {
     loading: isLoading,
     fn: updateBudgetFn,
     data: updatedBudget,
     error,
-  } = useFetch<UpdateBudgetResponse, [number]>(updateBudget);
+  } = useFetch<UpdateBudgetResponse>(updateBudget);
 
-  const percentUsed = initialBudget && initialBudget.amount > 0
+  const percentUsed = initialBudget
     ? (currentExpenses / initialBudget.amount) * 100
     : 0;
 
-  const handleUpdateBudget = async () => {
+  const handleUpdateBudget = async (): Promise<void> => {
     const amount = parseFloat(newBudget);
 
     if (isNaN(amount) || amount <= 0) {
@@ -66,7 +72,7 @@ export function BudgetProgress({ initialBudget, currentExpenses }: BudgetProgres
     await updateBudgetFn(amount);
   };
 
-  const handleCancel = () => {
+  const handleCancel = (): void => {
     setNewBudget(initialBudget?.amount?.toString() || "");
     setIsEditing(false);
   };
@@ -124,9 +130,9 @@ export function BudgetProgress({ initialBudget, currentExpenses }: BudgetProgres
               <>
                 <CardDescription>
                   {initialBudget
-                    ? `$${currentExpenses.toFixed(
+                    ? `₹${currentExpenses.toFixed(
                         2
-                      )} of $${initialBudget.amount.toFixed(2)} spent`
+                      )} of ₹${initialBudget.amount.toFixed(2)} spent`
                     : "No budget set"}
                 </CardDescription>
                 <Button
@@ -143,17 +149,17 @@ export function BudgetProgress({ initialBudget, currentExpenses }: BudgetProgres
         </div>
       </CardHeader>
       <CardContent>
-        {initialBudget && initialBudget.amount > 0 && (
+        {initialBudget && (
           <div className="space-y-2">
             <Progress
-              value={Math.min(percentUsed, 100)} // Cap at 100% for display
-              className={`${
+              value={percentUsed}
+              className={
                 percentUsed >= 90
                   ? "[&>div]:bg-red-500"
                   : percentUsed >= 75
                     ? "[&>div]:bg-yellow-500"
                     : "[&>div]:bg-green-500"
-              }`}
+              }
             />
             <p className="text-xs text-muted-foreground text-right">
               {percentUsed.toFixed(1)}% used

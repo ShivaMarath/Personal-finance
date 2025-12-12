@@ -33,22 +33,23 @@ import { transactionSchema } from "@/app/lib/schema";
 import { ReceiptScanner } from "./recipt-scanner";
 import { Account, Transaction, TransactionType, RecurringInterval } from "@/lib/generated/prisma";
 
-// Extend the schema to ensure date is always a Date object for the form
-const formTransactionSchema = transactionSchema.extend({
-  date: z.date({ message: "Date is required" }),
-  isRecurring: z.boolean(),
-});
+type TransactionFormData = z.infer<typeof transactionSchema>;
 
-type TransactionFormData = z.infer<typeof formTransactionSchema>;
 
 type Category = {
   id: string;
   name: string;
-  type: TransactionType;
+  type: string; // Use string instead of TransactionType enum
+  color: string;
+  icon: string;
+  subcategories?: string[];
 };
 
-type AccountWithBalance = Account & {
-  balance: number | string;
+type SerializedAccount = Omit<Account, 'balance'> & {
+  balance: number;
+  _count?: {
+    transactions: number;
+  };
 };
 
 type SerializedTransaction = Omit<Transaction, 'amount'> & {
@@ -56,7 +57,7 @@ type SerializedTransaction = Omit<Transaction, 'amount'> & {
 };
 
 type AddTransactionFormProps = {
-  accounts: AccountWithBalance[];
+  accounts: SerializedAccount[];
   categories: Category[];
   editMode?: boolean;
   initialData?: SerializedTransaction | null;
@@ -94,7 +95,7 @@ export function AddTransactionForm({
     getValues,
     reset,
   } = useForm<TransactionFormData>({
-    resolver: zodResolver(formTransactionSchema),
+    resolver: zodResolver(transactionSchema),
     defaultValues:
       editMode && initialData
         ? {
@@ -224,7 +225,7 @@ export function AddTransactionForm({
             <SelectContent>
               {accounts.map((account) => (
                 <SelectItem key={account.id} value={account.id}>
-                  {account.name} (${parseFloat(account.balance.toString()).toFixed(2)})
+                  {account.name} (₹{parseFloat(account.balance.toString()).toFixed(2)})
                 </SelectItem>
               ))}
               <CreateAccountDrawer>

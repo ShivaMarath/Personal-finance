@@ -1,5 +1,6 @@
 import { Suspense } from "react";
-import { getUserAccounts, getDashboardData } from "@/actions/dashboard";
+import { getUserAccounts } from "@/actions/dashboard";
+import { getDashboardData } from "@/actions/dashboard";
 import { getCurrentBudget } from "@/actions/budget";
 import { AccountCard } from "./_components/account-card";
 import { CreateAccountDrawer } from "@/components/create-account-drawer";
@@ -8,49 +9,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Plus } from "lucide-react";
 import { DashboardOverview } from "./_components/transaction-overview";
 
-// Define types for your data
-interface Account {
-  id: string;
-  name: string;
-  type: string;
-  balance: string | number;
-  isDefault: boolean;
-  // Add other account properties as needed
-}
-
-interface Transaction {
-  id: string;
-  amount: number;
-  type: string;
-  date: Date;
-  description?: string;
-  // Add other transaction properties as needed
-}
-
-interface BudgetData {
-  budget: {
-    id: string;
-    userId: string;
-    amount: number;
-    createdAt: Date;
-    updatedAt: Date;
-  } | null;
-  currentExpenses: number;
-}
-
 export default async function DashboardPage() {
   const [accounts, transactions] = await Promise.all([
     getUserAccounts(),
     getDashboardData(),
   ]);
 
-  const typedAccounts: Account[] = accounts || [];
-  const typedTransactions: Transaction[] = transactions || [];
-
-  const defaultAccount = typedAccounts.find((account) => account.isDefault);
+  const defaultAccount = accounts?.find((account) => account.isDefault);
 
   // Get budget for default account
-  let budgetData: BudgetData | null = null;
+  let budgetData = null;
   if (defaultAccount) {
     budgetData = await getCurrentBudget(defaultAccount.id);
   }
@@ -59,14 +27,14 @@ export default async function DashboardPage() {
     <div className="space-y-8">
       {/* Budget Progress */}
       <BudgetProgress
-        initialBudget={budgetData?.budget}
-        currentExpenses={budalue?.currentExpenses || 0}
+        initialBudget={budgetData?.budget || null}
+        currentExpenses={budgetData?.currentExpenses || 0}
       />
 
       {/* Dashboard Overview */}
       <DashboardOverview
-        accounts={typedAccounts}
-        transactions={typedTransactions}
+        accounts={accounts || []}
+        transactions={transactions || []}
       />
 
       {/* Accounts Grid */}
@@ -79,8 +47,8 @@ export default async function DashboardPage() {
             </CardContent>
           </Card>
         </CreateAccountDrawer>
-        {typedAccounts.length > 0 &&
-          typedAccounts.map((account) => (
+        {accounts && accounts.length > 0 &&
+          accounts.map((account) => (
             <AccountCard key={account.id} account={account} />
           ))}
       </div>

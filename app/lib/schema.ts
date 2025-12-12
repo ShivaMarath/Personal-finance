@@ -15,7 +15,7 @@ export const transactionSchema = z
     date: z.date({ message: "Date is required" }),
     accountId: z.string().min(1, "Account is required"),
     category: z.string().min(1, "Category is required"),
-    isRecurring: z.boolean().default(false),
+    isRecurring: z.boolean(),
     recurringInterval: z
       .enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"])
       .optional(),
