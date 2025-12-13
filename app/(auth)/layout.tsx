@@ -1,12 +1,9 @@
-import React, { ReactNode } from 'react'
+import { ReactNode } from 'react'
 
-const Auth_layout = ({children}:ReactNode) => {
-  return (
-    <div className='flex justify-center pt-20'>
-        {children}
-    </div>
-    
-  )
+type AuthLayoutProps = {
+  children: ReactNode
 }
 
-export default Auth_layout
+export default function AuthLayout({ children }: AuthLayoutProps) {
+  return <div>{children}</div>
+}
